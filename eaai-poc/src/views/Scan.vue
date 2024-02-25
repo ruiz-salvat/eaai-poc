@@ -17,10 +17,21 @@
       <b-button class="mt-3" block @Click="addItem()">Add</b-button>
     </b-modal>
 
-    <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
-      placeholder="Choose a file or drop it here..." 
-      drop-placeholder="Drop file here...">
-    </b-form-file>
+    <div class="file-upload-area">
+      <h4>Use your camera</h4>
+      <!-- <input id="input-camera" type="file" accept="image/*;capture=camera" /> -->
+      <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
+        accept="image/*;capture=camera"
+        placeholder="Choose a file or drop it here..." 
+        drop-placeholder="Drop file here...">
+      </b-form-file>
+      <br>
+      <h4>Or upload from device</h4>
+      <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
+        placeholder="Choose a file or drop it here..." 
+        drop-placeholder="Drop file here...">
+      </b-form-file>
+    </div>
 
     <img :src="imageBase64" class="item-image" />
 
@@ -131,5 +142,10 @@ export default {
 .item-image {
   max-width: 400px;
   max-height: 400px;
+}
+
+.file-upload-area {
+  border: solid 1px red;
+  padding: 0.5rem;
 }
 </style>

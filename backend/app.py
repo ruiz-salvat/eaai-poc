@@ -20,4 +20,22 @@ def items():
 
     return ''
 
+@app.route('/item/<id>', methods=['GET', 'DELETE'])
+def item(id):
+    f = open('data.json', 'r')
+    data = json.load(f)
+    f.close()
+    
+    item_list = list(filter(lambda x: x['id'] == int(id), data['items']))
+    if len(item_list) < 1:
+        return 'Item not found'
+    item = item_list[0]
+
+    if request.method == 'GET':
+        return item
+    elif request.method == 'DELETE':
+        return 'Ok'
+
+    return ''
+
 CORS(app)

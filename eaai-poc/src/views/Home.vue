@@ -1,3 +1,7 @@
+<script setup>
+import ConfirmationModal from '../components/ConfirmationModal.vue'
+</script>
+
 <template>
   <b-container>
     <b-modal ref="bv-modal" hide-footer>
@@ -30,16 +34,18 @@
             ></b-form-input>
           </b-form-group>
 
-          <b-button type="submit" variant="primary">Add</b-button>
+          <b-button type="submit" variant="primary" pill>Add</b-button>
         </b-form>
       </div>
     </b-modal>
 
-    <b-row>
-      <b-button @click="openItemModal()">Add new item</b-button>
+    <ConfirmationModal ref="delete-modal" title="Delete item" message="Are you sure you want to delete this item?"/>
+
+    <b-row class="mt-2 mb-2">
+      <b-button @click="openItemModal()" variant="primary" pill>Add new item</b-button>
     </b-row>
 
-    <b-row>
+    <b-row class="mt-2 mb-2">
       <b-calendar 
         v-model="value" 
         @context="onContext" 
@@ -49,10 +55,20 @@
       </b-calendar>
     </b-row>
     
-    <b-row>
-      <b-table :items="items">
+    <b-row class="mt-2 mb-2">
+      <b-table 
+        :items="items"
+        :fields="fields"
+        sort-icon-left
+        sticky-header
+        hover
+        no-sort-reset
+        @row-clicked="tableRowClicked">
         <template #cell(date)="data">
           <span :style="tableDateStyle(data.item.date)">{{ data.item.date }}</span>
+        </template>
+        <template #cell(actions)="data">
+          <b-button @click="deleteItem(data.item.id)" variant="danger" size="sm" pill>Delete</b-button>
         </template>
       </b-table>
     </b-row>
@@ -64,6 +80,11 @@ export default {
   data() {
     return {
       items: [],
+      fields: [
+        {key: 'name', label: 'Name', sortable: true},
+        {key: 'date', label: 'Expiry Date', sortable: true},
+        {key: 'actions', label: ''}
+      ],
       value: null,
       newItem: {
         name: null,
@@ -83,7 +104,16 @@ export default {
       })
     },
     dateClass(ymd, date) {
-      return this.items.map(x => x.date).includes(ymd) ? 'item-expiry' : ''
+      if (this.items.map(x => x.date).includes(ymd)) {
+        let d = Date.parse(ymd)
+        if (d < new Date())
+          return 'item-expiry-danger'
+        else if (d < new Date(Date.now() + 24 * 60 * 60 * 1000))
+          return 'item-expiry-warning'
+        else
+          return 'item-expiry-ok'
+      }
+      return ''
     },
     tableDateStyle(dateStr) {
       let date = Date.parse(dateStr)
@@ -108,13 +138,33 @@ export default {
         this.getItems()
         this.newItem = {name: null, date: null}
       })
+    },
+    tableRowClicked(row) {
+      console.log('row clicked', row)
+    },
+    deleteItem(id) {
+      this.$refs['delete-modal'].show()
+
+      fetch(`http://127.0.0.1:5000/item/${id}`, {
+        method: 'DELETE'
+      }).then((response) => {
+        console.log('response', response)
+      })
     }
   }
 }
 </script>
 
 <style>
-.item-expiry {
+.item-expiry-danger {
   background-color: #ff5959;
+}
+
+.item-expiry-warning {
+  background-color: #fff459;
+}
+
+.item-expiry-ok {
+  background-color: #59ff67;
 }
 </style>
