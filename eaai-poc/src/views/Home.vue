@@ -4,11 +4,8 @@ import ConfirmationModal from '../components/ConfirmationModal.vue'
 
 <template>
   <b-container>
-    <b-modal ref="bv-modal" hide-footer>
-      <template #modal-title>
-        Add a new item to the calendar
-      </template>
-      <div class="d-block text-center">
+    <b-modal ref="add-item-modal" title="Add a new item to the calendar" hide-footer>
+      <div class="d-block">
         <b-form @submit="onSubmit">
           <b-form-group
             label="Name:"
@@ -17,29 +14,33 @@ import ConfirmationModal from '../components/ConfirmationModal.vue'
               id="input-1"
               v-model="newItem.name"
               type="text"
-              placeholder="Enter email"
+              placeholder="Milk"
               required
             ></b-form-input>
           </b-form-group>
 
           <b-form-group
             label="Expiry date:"
-            label-for="input-2">
-            <b-form-input
-              id="input-2"
-              v-model="newItem.date"
-              type="text"
-              placeholder="02-02-2023"
-              required
-            ></b-form-input>
+            label-for="input-2"
+            class="mt-2">
+            <b-form-datepicker 
+                id="input-2"
+                v-model="newItem.date"
+                required />
           </b-form-group>
-
-          <b-button type="submit" variant="primary" pill>Add</b-button>
+          
+          <div class="text-center">
+            <b-button type="submit" variant="primary" class="mt-2" pill>Add</b-button>
+          </div>
         </b-form>
       </div>
     </b-modal>
 
-    <ConfirmationModal ref="delete-modal" title="Delete item" message="Are you sure you want to delete this item?"/>
+    <ConfirmationModal 
+      ref="delete-modal" 
+      @confirmed="onDeleteConfirmed"
+      title="Delete item" 
+      message="Are you sure you want to delete this item?"/>
 
     <b-row class="mt-2 mb-2">
       <b-button @click="openItemModal()" variant="primary" pill>Add new item</b-button>
@@ -59,16 +60,17 @@ import ConfirmationModal from '../components/ConfirmationModal.vue'
       <b-table 
         :items="items"
         :fields="fields"
-        sort-icon-left
-        sticky-header
+        thead-class="d-none"
         hover
-        no-sort-reset
         @row-clicked="tableRowClicked">
         <template #cell(date)="data">
-          <span :style="tableDateStyle(data.item.date)">{{ data.item.date }}</span>
+          <span :style="tableDateStyle(data.item.date)">{{ formatDate(data.item.date) }}</span>
         </template>
         <template #cell(actions)="data">
-          <b-button @click="deleteItem(data.item.id)" variant="danger" size="sm" pill>Delete</b-button>
+          <b-icon 
+            @click="deleteItem(data.item.id)"
+            icon="trash-fill" 
+            variant="danger" />
         </template>
       </b-table>
     </b-row>
@@ -81,9 +83,9 @@ export default {
     return {
       items: [],
       fields: [
-        {key: 'name', label: 'Name', sortable: true},
-        {key: 'date', label: 'Expiry Date', sortable: true},
-        {key: 'actions', label: ''}
+        {key: 'name'},
+        {key: 'date'},
+        {key: 'actions'}
       ],
       value: null,
       newItem: {
@@ -122,11 +124,11 @@ export default {
       return ''
     },
     openItemModal() {
-      this.$refs['bv-modal'].show()
+      this.$refs['add-item-modal'].show()
     },
     onSubmit(event) {
       event.preventDefault()
-
+      
       fetch('http://127.0.0.1:5000/items', {
         method: 'POST',
         headers: {
@@ -134,7 +136,7 @@ export default {
         },
         body: JSON.stringify(this.newItem)
       }).then(() => {
-        this.$refs['bv-modal'].hide()
+        this.$refs['add-item-modal'].hide()
         this.getItems()
         this.newItem = {name: null, date: null}
       })
@@ -143,13 +145,25 @@ export default {
       console.log('row clicked', row)
     },
     deleteItem(id) {
-      this.$refs['delete-modal'].show()
-
+      this.$refs['delete-modal'].show(id)      
+    },
+    onDeleteConfirmed(id) {
       fetch(`http://127.0.0.1:5000/item/${id}`, {
         method: 'DELETE'
-      }).then((response) => {
-        console.log('response', response)
+      }).then(() => {
+        this.getItems()
       })
+    },
+    formatDate(dateStr) {
+      const date = new Date(dateStr)
+      const day = date.getDate()
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ]
+      const month = monthNames[date.getMonth()]
+      const year = date.getFullYear()
+      return `${day} ${month} ${year}`
     }
   }
 }

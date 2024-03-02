@@ -2,7 +2,7 @@
   <b-container>
     <b-row>
       <b-list-group v-for="item in items">
-        <b-list-group-item @Click="itemClick(item.name)" :active="selectedItems.includes(item.name)">
+        <b-list-group-item @Click="itemClick(item)" :active="selectedItems.map((x) => x.id).includes(item.id)">
           {{ item.name }}
         </b-list-group-item>
       </b-list-group>
@@ -68,11 +68,11 @@ export default {
         this.loading = false
       })
     },
-    itemClick(itemName) {
-      if (this.selectedItems.includes(itemName))
-        this.selectedItems = this.selectedItems.filter((item) => item !== itemName)
+    itemClick(item) {
+      if (this.selectedItems.map((x) => x.id).includes(item.id))
+        this.selectedItems = this.selectedItems.filter((x) => x.id !== item.id)
       else
-        this.selectedItems.push(itemName)
+        this.selectedItems.push(item)
     }
   }
 }
