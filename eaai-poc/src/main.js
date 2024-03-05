@@ -7,15 +7,15 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Home from './views/Home.vue'
-import Scan from './views/Scan.vue'
 import Cook from './views/Cook.vue'
+import Plan from './views/Plan.vue'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         { path: '/', name: 'home', component: Home },
-        { path: '/scan', name: 'scan', component: Scan },
-        { path: '/cook', name: 'cook', component: Cook }
+        { path: '/cook', name: 'cook', component: Cook },
+        { path: '/plan', name: 'plan', component: Plan }
     ]
 })
 

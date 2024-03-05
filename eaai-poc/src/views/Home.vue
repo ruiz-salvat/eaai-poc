@@ -1,10 +1,12 @@
 <script setup>
 import ConfirmationModal from '../components/ConfirmationModal.vue'
+import LoadingGif from '../components/LoadingGif.vue'
 </script>
 
 <template>
-  <b-container>
+  <b-container class="mt-2 mb-2">
     <b-modal ref="add-item-modal" title="Add a new item to the calendar" hide-footer>
+      <!-- TODO: make component -->
       <div class="d-block">
         <b-form @submit="onSubmit">
           <b-form-group
@@ -36,27 +38,48 @@ import ConfirmationModal from '../components/ConfirmationModal.vue'
       </div>
     </b-modal>
 
+    <b-modal ref="scan-modal" title="Scan item" hide-footer>
+      <!-- TODO: make component -->
+      <div class="d-block">
+        <b-row v-if="!loading">
+          <b-col>
+            <div class="image-area">
+              <img v-if="file" :src="imageBase64" class="item-image" />
+              <b-icon v-if="!file" icon="image" font-scale="7.5"></b-icon>
+            </div>
+          </b-col>
+          <b-col>
+            <h4>Use your camera</h4>
+            <input id="input-camera" type="file" accept="image/*;capture=camera" />
+            <!-- <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
+              accept="image/*;capture=camera"
+              placeholder="Choose a file or drop it here..." 
+              drop-placeholder="Drop file here...">
+            </b-form-file> -->
+            <h4>Or upload from device</h4>
+            <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
+              placeholder="" 
+              drop-placeholder="">
+            </b-form-file>
+            <b-button v-if="file" @click="scanFile()" variant="primary" class="mt-2" pill>Scan</b-button>
+          </b-col>
+        </b-row>
+
+        <LoadingGif :loading="loading"></LoadingGif>
+      </div>
+    </b-modal>
+
     <ConfirmationModal 
       ref="delete-modal" 
       @confirmed="onDeleteConfirmed"
       title="Delete item" 
       message="Are you sure you want to delete this item?"/>
 
-    <b-row class="mt-2 mb-2">
-      <b-button @click="openItemModal()" variant="primary" pill>Add new item</b-button>
-    </b-row>
+    <b-button @click="scanItem()" variant="outline-primary" style="margin-right: 0.5rem" pill>
+      <b-icon icon="camera"/> Scan</b-button>
+    <b-button @click="openItemModal()" variant="primary"  pill>Add new item</b-button>
 
-    <b-row class="mt-2 mb-2">
-      <b-calendar 
-        v-model="value" 
-        @context="onContext" 
-        block 
-        :date-info-fn="dateClass" 
-        locale="en-US">
-      </b-calendar>
-    </b-row>
-    
-    <b-row class="mt-2 mb-2">
+    <b-row class="mt-2">
       <b-table 
         :items="items"
         :fields="fields"
@@ -64,7 +87,7 @@ import ConfirmationModal from '../components/ConfirmationModal.vue'
         hover
         @row-clicked="tableRowClicked">
         <template #cell(date)="data">
-          <span :style="tableDateStyle(data.item.date)">{{ formatDate(data.item.date) }}</span>
+          <span :class="tableDateStyle(data.item.date)">{{ formatDate(data.item.date) }}</span>
         </template>
         <template #cell(actions)="data">
           <b-icon 
@@ -87,11 +110,14 @@ export default {
         {key: 'date'},
         {key: 'actions'}
       ],
-      value: null,
       newItem: {
         name: null,
         date: null
-      }
+      },
+      file: null,
+      imageBase64: '',
+      aiResponse: '',
+      loading: false
     }
   },
   created() {
@@ -105,7 +131,7 @@ export default {
         this.items = response.items
       })
     },
-    dateClass(ymd, date) {
+    tableDateStyle(ymd) {
       if (this.items.map(x => x.date).includes(ymd)) {
         let d = Date.parse(ymd)
         if (d < new Date())
@@ -117,14 +143,19 @@ export default {
       }
       return ''
     },
-    tableDateStyle(dateStr) {
-      let date = Date.parse(dateStr)
-      if (date < new Date())
-        return 'color: red'
-      return ''
-    },
     openItemModal() {
+      this.newItem = {
+        name: null,
+        date: null
+      }
       this.$refs['add-item-modal'].show()
+    },
+    scanItem() {
+      this.newItem = {
+        name: null,
+        date: null
+      }
+      this.$refs['scan-modal'].show()
     },
     onSubmit(event) {
       event.preventDefault()
@@ -154,7 +185,88 @@ export default {
         this.getItems()
       })
     },
+    onFileDrop(file) {
+      this.getBase64(file).then(base64 => {
+        this.imageBase64 = base64
+      })
+    },
+    getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = error => reject(error)
+      })
+    },
+    scanFile() {
+      this.loading = true
+
+      this.getBase64(this.file).then(base64 => {
+
+        const jsonData = {
+          "model": "gpt-4-vision-preview",
+          "messages": [
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "What is the expiration date? use 1 word, include day month and year in format yyyy-mm-dd"
+                },
+                {
+                  "type": "text",
+                  "text": "What is grocery in the image? use five words maximum"
+                },
+                {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": base64
+                  }
+                }
+              ]
+            }
+          ],
+          "max_tokens": 300
+        }
+
+        fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '
+          },
+          body: JSON.stringify(jsonData)
+        }).then((response) => response.json())
+        .then((response) => {
+          this.aiResponse = response.choices[0].message.content
+          this.newItem = this.createNewItem(this.aiResponse)
+          this.$refs['scan-modal'].hide()
+          setTimeout(() => {this.$refs['add-item-modal'].show()}, 500)
+          this.loading = false
+        })
+
+      }).catch(() => alert('No file selected!'))
+    },
+    createNewItem(itemStr) {
+      let parts = itemStr.split('\n')
+      let firstPart = parts[0]
+      let restOfString = parts.slice(1).join(' ')
+      return {name: restOfString, date: firstPart}
+    },
+    addItem() {
+      fetch('http://127.0.0.1:5000/items', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.newItem)
+      }).then(() => {
+        this.$refs['add-item-modal'].hide()
+      })
+    },
     formatDate(dateStr) {
+      if (!dateStr)
+        return '-'
       const date = new Date(dateStr)
       const day = date.getDate()
       const monthNames = [
@@ -169,16 +281,35 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.item-image {
+  max-width: 300px;
+  max-height: 300px;
+}
+
+.image-area {
+  border: solid 1px #797979;
+  height: 300px;
+  width: 225px;
+  max-width: 300px;
+  max-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .item-expiry-danger {
-  background-color: #ff5959;
+  color: #6e0909;
+  font-weight: bold;
 }
 
 .item-expiry-warning {
-  background-color: #fff459;
+  color: #5a530b;
+  font-weight: bold;
 }
 
 .item-expiry-ok {
-  background-color: #59ff67;
+  color: #0e5529;
+  font-weight: bold;
 }
 </style>

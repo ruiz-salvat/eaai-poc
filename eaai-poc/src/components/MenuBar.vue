@@ -1,23 +1,25 @@
 <template>
     <div class="menu-bar">
-      <div class="menu-element">Title...</div>
+        <b-sidebar id="sidebar-1" title="Sidebar" shadow>
+            <div class="px-3 py-2">
+                <p>
+                Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
+                in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                </p>
+                <b-img src="https://picsum.photos/500/500/?image=54" fluid thumbnail></b-img>
+            </div>
+        </b-sidebar>
+
+      <div class="menu-element">
+        <img v-b-toggle.sidebar-1 src="../assets/avatars/rex.jpeg" class="avatar-image"/>
+      </div>
       <div class="menu-element">
         <router-link to="/">
             <div class="icon-container" :class="selectedClass('home')">
                 <div>
-                    <b-icon icon="calendar3"></b-icon>
+                    <b-icon icon="house-fill"></b-icon>
                 </div>
                 <div>Home</div>
-            </div>
-        </router-link>
-      </div>
-      <div class="menu-element">
-        <router-link to="/scan">
-            <div class="icon-container" :class="selectedClass('scan')">
-                <div>
-                    <b-icon icon="camera"></b-icon>
-                </div>
-                <div>Scan</div>
             </div>
         </router-link>
       </div>
@@ -28,6 +30,16 @@
                     <b-icon icon="emoji-heart-eyes"></b-icon>
                 </div>
                 <div>Cook</div>
+            </div>
+        </router-link>
+      </div>
+      <div class="menu-element">
+        <router-link to="/plan">
+            <div class="icon-container" :class="selectedClass('plan')">
+                <div>
+                    <b-icon icon="calendar3"></b-icon>
+                </div>
+                <div>Plan</div>
             </div>
         </router-link>
       </div>
@@ -52,7 +64,7 @@ a {
 }
 
 .menu-bar {
-  background-color: #002fca;
+  background-color: #0d6efd;
   color: #f0ffff;
   width: 100%;
   display: flex;
@@ -60,8 +72,11 @@ a {
 }
 
 .menu-element {
-  padding-right: 1rem;
-  padding-left: 1rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .icon-container {
@@ -80,9 +95,18 @@ a {
 }
 
 .active-tab {
-    /* border: solid white 1px; */
     background-color: #f0ffff;
-    color: #002fca;
+    color: #0d6efd;
     border-radius: 8px;
+}
+
+.avatar-image {
+    border-radius: 50%;
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+}
+
+.avatar-image:hover {
+    cursor: pointer;
 }
 </style>
