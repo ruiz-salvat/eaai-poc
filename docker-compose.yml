@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  flask_app:
+    build: backend/
+    volumes:
+      - ./backend:/backend
+    ports:
+      - '5000:5000'
+  vue_app:
+    build: eaai-poc/
+    volumes:
+      - ./eaai-poc:/eaai-poc
+    ports:
+      - '5173:5173'
+    depends_on:
+      - flask_app
+    restart: always

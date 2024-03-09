@@ -10,6 +10,8 @@
 
 * Sharing recipes and allowing other users to comment and like
 
+* Reports & stats how much did I spend, how many calories....
+
 ## Links
 
 https://docs.docker.com/engine/install/ubuntu/

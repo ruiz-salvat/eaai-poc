@@ -140,7 +140,7 @@ export default {
     }
   },
   created() {
-    fetch('http://127.0.0.1:5000/items')
+    fetch('http://172.19.0.2:5000/items')
     .then((response) => response.json())
     .then((response) => {
       this.items = response.items
@@ -263,7 +263,7 @@ export default {
       this.$refs['add-recipe-modal'].show()
     },
     saveRecipe() {
-      fetch('http://127.0.0.1:5000/recipies', {
+      fetch('http://172.19.0.2:5000/recipies', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

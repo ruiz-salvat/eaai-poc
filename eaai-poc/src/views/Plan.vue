@@ -23,7 +23,7 @@ const { api_key, updateKey } = inject('api_key')
                     </b-form-group>
                     
                     <div class="text-center">
-                        <b-button @click="getPlan()" variant="primary" class="mt-2" pill>Save</b-button>
+                        <b-button @click="getPlan(api_key)" variant="primary" class="mt-2" pill>Save</b-button>
                     </div>
                 </div>
                 
@@ -83,7 +83,7 @@ export default {
             this.selectedOption = null
             this.$refs['make-plan-modal'].show()
         },
-        getPlan() {
+        getPlan(api_key) {
             this.loadingPlan = true
 
             let jsonData = {
@@ -106,7 +106,7 @@ export default {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer '
+                'Authorization': `Bearer ${api_key}`
               },
               body: JSON.stringify(jsonData)
             }).then((response) => response.json())

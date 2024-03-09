@@ -130,7 +130,7 @@ export default {
   },
   methods: {
     getItems() {
-      fetch('http://127.0.0.1:5000/items')
+      fetch('http://172.19.0.2:5000/items')
       .then((response) => response.json())
       .then((response) => {
         this.items = response.items
@@ -165,7 +165,7 @@ export default {
     onSubmit(event) {
       event.preventDefault()
       
-      fetch('http://127.0.0.1:5000/items', {
+      fetch('http://172.19.0.2:5000/items', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -184,7 +184,7 @@ export default {
       this.$refs['delete-modal'].show(id)      
     },
     onDeleteConfirmed(id) {
-      fetch(`http://127.0.0.1:5000/item/${id}`, {
+      fetch(`http://172.19.0.2:5000/item/${id}`, {
         method: 'DELETE'
       }).then(() => {
         this.getItems()
@@ -260,7 +260,7 @@ export default {
       return {name: restOfString, date: firstPart}
     },
     addItem() {
-      fetch('http://127.0.0.1:5000/items', {
+      fetch('http://172.19.0.2:5000/items', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
