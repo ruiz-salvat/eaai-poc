@@ -1,9 +1,14 @@
 <script setup>
 import LoadingGif from '../components/LoadingGif.vue'
+
+import { inject } from 'vue'
+const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
     <b-container class="mt-2 mb-2">
+        {{ updateKey() }}
+
         <b-modal ref="make-plan-modal" title="Make a diet plan" hide-footer>
             <div class="d-block">
                 <div v-if="!loadingPlan">
@@ -49,6 +54,12 @@ import LoadingGif from '../components/LoadingGif.vue'
 
 <script>
 export default {
+    props: {
+        api_key: {
+            type: String,
+            default: () => ''
+        }
+    },
     data() {
         return {
             loading: false,

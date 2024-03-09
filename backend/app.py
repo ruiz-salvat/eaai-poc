@@ -112,4 +112,12 @@ def recipie(id):
     return ''
 
 
+@app.route('/api_key', methods=['GET'])
+def get_api_key():
+    f = open('api_key.txt', 'r')
+    key = f.read()
+    f.close()
+    return key
+
+
 CORS(app)

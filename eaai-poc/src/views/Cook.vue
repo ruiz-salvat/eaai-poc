@@ -1,9 +1,14 @@
 <script setup>
 import LoadingGif from '../components/LoadingGif.vue'
+
+import { inject } from 'vue'
+const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
   <b-container class="mt-2">
+    {{ updateKey() }}
+
     <b-modal ref="add-recipe-modal" title="Add a new recipe" hide-footer>
       <div class="d-block">
           <b-form-group
@@ -67,7 +72,7 @@ import LoadingGif from '../components/LoadingGif.vue'
           </b-form-file>
         </div>
 
-        <b-button @click="generateRecipe()" variant="primary" class="mt-2" pill>Generate recipe</b-button>
+        <b-button @click="generateRecipe(api_key)" variant="primary" class="mt-2" pill>Generate recipe</b-button>
       </div>
 
       <div v-if="display === 'recipe'">
@@ -97,7 +102,7 @@ import LoadingGif from '../components/LoadingGif.vue'
           class="mt-2"
         ></b-form-textarea>
 
-        <b-button @click="sendFeedback()" variant="primary" class="mt-2" pill>
+        <b-button @click="sendFeedback(api_key)" variant="primary" class="mt-2" pill>
           <b-icon icon="shift-fill"/>
           Send
         </b-button>
@@ -110,6 +115,12 @@ import LoadingGif from '../components/LoadingGif.vue'
 
 <script>
 export default {
+  props: {
+      api_key: {
+          type: String,
+          default: () => ''
+      }
+  },
   data() {
     return {
       items: [],
@@ -137,7 +148,7 @@ export default {
     })
   },
   methods: {
-    generateRecipe() {
+    generateRecipe(api_key) {
       this.loading = true
       let jsonData
 
@@ -158,7 +169,7 @@ export default {
           "max_tokens": 300
         }
 
-        this.getAiResponse(jsonData)
+        this.getAiResponse(jsonData, api_key)
       } else if (this.selectedMode === 'scan') {
         this.getBase64(this.file).then(base64 => {
           this.imageBase64 = base64
@@ -189,11 +200,11 @@ export default {
             "max_tokens": 300
           }
 
-          this.getAiResponse(jsonData)
+          this.getAiResponse(jsonData, api_key)
         })
       }
     },
-    sendFeedback() {
+    sendFeedback(api_key) {
       this.loadingChat = true
 
       const jsonData = {
@@ -216,30 +227,30 @@ export default {
           "max_tokens": 300
         }
 
-        this.getAiResponse(jsonData)
+        this.getAiResponse(jsonData, api_key)
     },
-    getAiResponse(jsonData) {
-      // fetch('https://api.openai.com/v1/chat/completions', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': 'Bearer '
-      //   },
-      //   body: JSON.stringify(jsonData)
-      // }).then((response) => response.json())
-      // .then((response) => {
-      //   console.log('response...', response)
+    getAiResponse(jsonData, api_key) {
+      fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${api_key}`
+        },
+        body: JSON.stringify(jsonData)
+      }).then((response) => response.json())
+      .then((response) => {
+        console.log('response...', response)
 
-      //   this.aiResponse = response.choices[0].message.content
-      //   this.display = 'recipe'
-      //   this.loading = false
-      //   this.loadingChat = false
-      // })
+        this.aiResponse = response.choices[0].message.content
+        this.display = 'recipe'
+        this.loading = false
+        this.loadingChat = false
+      })
 
-      this.aiResponse = 'blah blah blah ...'
-      this.display = 'recipe'
-      this.loading = false
-      this.loadingChat = false
+      // this.aiResponse = 'blah blah blah ...'
+      // this.display = 'recipe'
+      // this.loading = false
+      // this.loadingChat = false
     },
     itemClick(item) {
       if (this.selectedItems.map((x) => x.id).includes(item.id))

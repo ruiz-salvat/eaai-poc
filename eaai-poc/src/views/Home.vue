@@ -1,10 +1,15 @@
 <script setup>
 import ConfirmationModal from '../components/ConfirmationModal.vue'
 import LoadingGif from '../components/LoadingGif.vue'
+
+import { inject } from 'vue'
+const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
   <b-container class="mt-2 mb-2">
+    {{ updateKey() }}
+
     <b-modal ref="add-item-modal" title="Add a new item to the calendar" hide-footer>
       <!-- TODO: make component -->
       <div class="d-block">
@@ -61,7 +66,7 @@ import LoadingGif from '../components/LoadingGif.vue'
               placeholder="" 
               drop-placeholder="">
             </b-form-file>
-            <b-button v-if="file" @click="scanFile()" variant="primary" class="mt-2" pill>Scan</b-button>
+            <b-button v-if="file" @click="scanFile(api_key)" variant="primary" class="mt-2" pill>Scan</b-button>
           </b-col>
         </b-row>
 
@@ -198,7 +203,8 @@ export default {
         reader.onerror = error => reject(error)
       })
     },
-    scanFile() {
+    scanFile(api_key) {
+      console.log('scanning...', api_key)
       this.loading = true
 
       this.getBase64(this.file).then(base64 => {
@@ -233,7 +239,7 @@ export default {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer '
+            'Authorization': `Bearer ${api_key}`
           },
           body: JSON.stringify(jsonData)
         }).then((response) => response.json())
