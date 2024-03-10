@@ -8,9 +8,8 @@ services:
       - '5000:5000'
   vue_app:
     build: eaai-poc/
-    volumes:
-      - ./eaai-poc:/eaai-poc
-      - ./eaai-poc/node_modules:/eaai-poc/node_modules
+    # volumes:
+    #   - ./eaai-poc:/eaai-poc
     ports:
       - '5173:5173'
     depends_on:
