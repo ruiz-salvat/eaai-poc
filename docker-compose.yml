@@ -10,7 +10,7 @@ services:
     build: eaai-poc/
     volumes:
       - ./eaai-poc:/eaai-poc
-      - /usr/src/app/node_modules
+      - ./eaai-poc/node_modules:/eaai-poc/node_modules
     ports:
       - '5173:5173'
     depends_on:
