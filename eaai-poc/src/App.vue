@@ -5,7 +5,7 @@ import { ref, provide } from 'vue'
 let api_key = ref(null)
 
 function updateKey() {
-  fetch('http://172.19.0.2:5000/api_key')
+  fetch(`${import.meta.env.VITE_API_URL}api_key`)
   .then((response) => response.text())
   .then((response) => {
     api_key.value = response

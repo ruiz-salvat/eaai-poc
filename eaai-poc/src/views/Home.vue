@@ -130,7 +130,7 @@ export default {
   },
   methods: {
     getItems() {
-      fetch('http://172.19.0.2:5000/items')
+      fetch(`${import.meta.env.VITE_API_URL}items`)
       .then((response) => response.json())
       .then((response) => {
         this.items = response.items
@@ -165,7 +165,7 @@ export default {
     onSubmit(event) {
       event.preventDefault()
       
-      fetch('http://172.19.0.2:5000/items', {
+      fetch(`${import.meta.env.VITE_API_URL}items`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -184,7 +184,7 @@ export default {
       this.$refs['delete-modal'].show(id)      
     },
     onDeleteConfirmed(id) {
-      fetch(`http://172.19.0.2:5000/item/${id}`, {
+      fetch(`${import.meta.env.VITE_API_URL}item/${id}`, {
         method: 'DELETE'
       }).then(() => {
         this.getItems()
@@ -260,7 +260,7 @@ export default {
       return {name: restOfString, date: firstPart}
     },
     addItem() {
-      fetch('http://172.19.0.2:5000/items', {
+      fetch(`${import.meta.env.VITE_API_URL}items`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
