@@ -89,7 +89,7 @@ def recipies():
     return ''
 
 
-@app.route('/recipie/<id>', methods=['GET', 'DELETE'])
+@app.route('/recipe/<id>', methods=['GET', 'DELETE'])
 def recipie(id):
     f = open('data.json', 'r')
     data = json.load(f)

@@ -3,7 +3,7 @@ import Vue from 'vue'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import { BootstrapVue, IconsPlugin, BVToastPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Home from './views/Home.vue'
@@ -22,6 +22,7 @@ const router = createRouter({
 const app = createApp(App)
 
 app.use(router)
+Vue.use(BVToastPlugin)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 

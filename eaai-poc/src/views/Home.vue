@@ -54,14 +54,7 @@ const { api_key, updateKey } = inject('api_key')
             </div>
           </b-col>
           <b-col>
-            <h4>Use your camera</h4>
-            <input id="input-camera" type="file" accept="image/*;capture=camera" />
-            <!-- <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
-              accept="image/*;capture=camera"
-              placeholder="Choose a file or drop it here..." 
-              drop-placeholder="Drop file here...">
-            </b-form-file> -->
-            <h4>Or upload from device</h4>
+            <h6>Use your camera or upload from device</h6>
             <b-form-file v-model="file" :state="Boolean(file)" @Input="onFileDrop"
               placeholder="" 
               drop-placeholder="">

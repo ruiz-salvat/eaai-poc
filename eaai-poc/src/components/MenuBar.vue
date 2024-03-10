@@ -1,17 +1,23 @@
 <template>
     <div class="menu-bar">
-        <b-sidebar id="sidebar-1" title="Sidebar" shadow>
+        <b-sidebar id="sidebar-1" title="Your profile" shadow>
             <div class="px-3 py-2">
-                <p>
+                <div class="centered-content">
+                    <img src="../assets/avatars/profile.jpeg" class="avatar-image-lg"/>
+                    <i>username</i>
+                </div>
+                <p class="mt-2">
                 Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
                 in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
                 </p>
-                <b-img src="https://picsum.photos/500/500/?image=54" fluid thumbnail></b-img>
+            </div>
+            <div class="centered-content-bt mb-4">
+                <img src="../assets/ui/logo.png" style="max-height: 4rem; max-width: 4rem;"/>
             </div>
         </b-sidebar>
 
       <div class="menu-element">
-        <img v-b-toggle.sidebar-1 src="../assets/avatars/rex.jpeg" class="avatar-image"/>
+        <img v-b-toggle.sidebar-1 src="../assets/avatars/profile.jpeg" class="avatar-image-sm"/>
       </div>
       <div class="menu-element">
         <router-link to="/">
@@ -100,10 +106,31 @@ a {
     border-radius: 8px;
 }
 
-.avatar-image {
+.avatar-image-sm {
     border-radius: 50%;
     max-height: 2.5rem;
     max-width: 2.5rem;
+}
+
+.avatar-image-lg {
+    border-radius: 50%;
+    max-height: 12.5rem;
+    max-width: 12.5rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+}
+
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.centered-content-bt {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .avatar-image:hover {

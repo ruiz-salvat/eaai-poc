@@ -1,12 +1,13 @@
 <script setup>
 import LoadingGif from '../components/LoadingGif.vue'
+import ConfirmationModal from '../components/ConfirmationModal.vue'
 
 import { inject } from 'vue'
 const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
-  <b-container class="mt-2">
+  <b-container class="mt-2 mb-2">
     {{ updateKey() }}
 
     <b-modal ref="add-recipe-modal" title="Add a new recipe" hide-footer>
@@ -29,9 +30,23 @@ const { api_key, updateKey } = inject('api_key')
       </div>
     </b-modal>
 
+    <ConfirmationModal 
+      ref="delete-modal" 
+      @confirmed="onDeleteConfirmed"
+      title="Delete recipe" 
+      message="Are you sure you want to delete this recipe?"/>
+
+    <b-alert
+      v-model="showDeleteRecipeAlert"
+      class="position-fixed fixed-top m-0 rounded-0"
+      style="z-index: 2000;"
+      variant="success"
+      dismissible>
+      Recipe deleted successfully!
+    </b-alert>
+
     <div v-if="!loading">
       <div v-if="display === 'picker'">
-
         <div class="option-container">
           <div class="option" 
             :class="'list' === selectedMode ? 'active-option' : ''" 
@@ -44,18 +59,26 @@ const { api_key, updateKey } = inject('api_key')
             <b-icon icon="camera"/>
           </div>
           <div class="option" 
+            :class="'recipe-list' === selectedMode ? 'active-option' : ''" 
+            @click="selectedMode = 'recipe-list'">
+            <b-icon icon="list"/>
+          </div>
+          <div class="option" 
             v-if="aiResponse.length"
             @click="display = 'recipe'">
             <b-icon icon="chevron-compact-right"/>
           </div>
         </div>
 
-        <div v-if="selectedMode == 'list'" class="list-container">
-          <b-list-group v-for="item in items">
-            <b-list-group-item @Click="itemClick(item)" :active="selectedItems.map((x) => x.id).includes(item.id)">
-              {{ item.name }}
-            </b-list-group-item>
-          </b-list-group>
+        <div v-if="selectedMode == 'list'">
+          <div class="list-container">
+            <b-list-group v-for="item in items">
+              <b-list-group-item @Click="itemClick(item)" :active="selectedItems.map((x) => x.id).includes(item.id)">
+                {{ item.name }}
+              </b-list-group-item>
+            </b-list-group>
+          </div>
+          <b-button @click="generateRecipe(api_key)" variant="primary" class="mt-2" pill>Generate recipe</b-button>
         </div>
 
         <div v-if="selectedMode == 'scan'">
@@ -70,9 +93,26 @@ const { api_key, updateKey } = inject('api_key')
             placeholder="" 
             drop-placeholder="">
           </b-form-file>
+          <b-button @click="generateRecipe(api_key)" variant="primary" class="mt-2" pill>Generate recipe</b-button>
         </div>
 
-        <b-button @click="generateRecipe(api_key)" variant="primary" class="mt-2" pill>Generate recipe</b-button>
+        <div v-if="selectedMode == 'recipe-list'">
+          <div class="list-container">
+            <b-list-group v-for="recipe in recipies">
+              <b-list-group-item>
+                <b-row>
+                  <b-col @Click="recipeClick(recipe)" cols="10">{{ recipe.name }}</b-col>
+                  <b-col class="text-center">
+                    <b-icon 
+                      @click="deleteRecipe(recipe.id)"
+                      icon="trash-fill" 
+                      variant="danger" />
+                  </b-col>
+                </b-row>
+              </b-list-group-item>
+            </b-list-group>
+          </div>
+        </div>
       </div>
 
       <div v-if="display === 'recipe'">
@@ -125,6 +165,7 @@ export default {
     return {
       items: [],
       selectedItems: [],
+      recipies: [],
       aiResponse: '',
       loading: false,
       selectedMode: 'list',
@@ -136,18 +177,29 @@ export default {
       newRecipe: {
         name: null,
         text: null
-      }
+      },
+      showDeleteRecipeAlert: false
     }
   },
   created() {
-    fetch(`${import.meta.env.VITE_API_URL}items`)
-    .then((response) => response.json())
-    .then((response) => {
-      this.items = response.items
-      console.log('items', response)
-    })
+    this.getItems()
+    this.getRecipes()
   },
   methods: {
+    getItems() {
+      fetch(`${import.meta.env.VITE_API_URL}items`)
+      .then((response) => response.json())
+      .then((response) => {
+        this.items = response.items
+      })
+    },
+    getRecipes() {
+      fetch(`${import.meta.env.VITE_API_URL}recipies`)
+      .then((response) => response.json())
+      .then((response) => {
+        this.recipies = response
+      })
+    },
     generateRecipe(api_key) {
       this.loading = true
       let jsonData
@@ -258,6 +310,10 @@ export default {
       else
         this.selectedItems.push(item)
     },
+    recipeClick(recipe) {
+      this.aiResponse = recipe.text
+      this.display = 'recipe'
+    },
     save() {
       this.newRecipe.text = this.aiResponse
       this.$refs['add-recipe-modal'].show()
@@ -273,7 +329,20 @@ export default {
         console.log('res', response)
         this.newRecipe = {name: null, text: null}
         this.$refs['add-recipe-modal'].hide()
+        this.getRecipes()
       }).catch(() => {this.newRecipe = {name: null, text: null}})
+    },
+    deleteRecipe(recipeId) {
+      this.$refs['delete-modal'].show(recipeId)
+    },
+    onDeleteConfirmed(id) {
+      fetch(`${import.meta.env.VITE_API_URL}recipe/${id}`, {
+        method: 'DELETE'
+      }).then(() => {
+        this.showDeleteRecipeAlert = true
+        setTimeout(() => {this.showDeleteRecipeAlert = false}, 4000)
+        this.getRecipes()
+      }).catch((err) => {console.log(err)})
     },
     onFileDrop(file) {
       this.getBase64(file).then(base64 => {
@@ -302,7 +371,7 @@ export default {
 .option {
   border: solid 1px #0d6efd;
   color: #0d6efd;
-  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   border-radius: 0.5rem;
   padding: 0.25rem;
 }
