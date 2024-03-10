@@ -31,7 +31,7 @@ const { api_key, updateKey } = inject('api_key')
             </div>
         </b-modal>
 
-        <b-button @click="generatePlan()" variant="primary" pill>Generate plan</b-button>
+        <b-button @click="generatePlan(api_key)" variant="primary" pill>Generate plan</b-button>
 
         <b-row class="mt-2">
             <b-calendar 

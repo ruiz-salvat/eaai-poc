@@ -19,3 +19,17 @@ https://docs.docker.com/engine/install/ubuntu/
 https://www.freecodecamp.org/news/how-to-dockerize-a-flask-app/
 
 https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html?redirect=true
+
+## Server setup
+
+* create user
+    - user: deploy
+    - pass: 1234
+
+* generate ssh key
+
+* add key to github
+
+* clone repository
+
+* install docker compose
