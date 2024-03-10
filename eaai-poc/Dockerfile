@@ -4,13 +4,15 @@ WORKDIR /eaai-poc
 
 COPY package*.json ./
 
+# RUN npm install -g http-serve
 RUN npm install
 
 COPY . .
 
-EXPOSE 5173
-
 RUN npm run build
 
-# CMD ["npm", "run", "dev", "--", "--host"]
-CMD ["npm", "run", "preview", "--", "--host"]
+# EXPOSE 8080
+EXPOSE 5173
+
+# CMD ["http-server", "dist"]
+CMD ["npm", "run", "dev", "--", "--host"]
