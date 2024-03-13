@@ -19,7 +19,7 @@ const { api_key, updateKey } = inject('api_key')
               id="input-1"
               v-model="newRecipe.name"
               type="text"
-              placeholder="Spaghuetti bolognese"
+              placeholder="Name your recipe..."
               required
             ></b-form-input>
           </b-form-group>
@@ -291,8 +291,6 @@ export default {
         body: JSON.stringify(jsonData)
       }).then((response) => response.json())
       .then((response) => {
-        console.log('response...', response)
-
         this.aiResponse = response.choices[0].message.content
         this.display = 'recipe'
         this.loading = false
@@ -325,8 +323,7 @@ export default {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(this.newRecipe)
-      }).then((response) => {
-        console.log('res', response)
+      }).then(() => {
         this.newRecipe = {name: null, text: null}
         this.$refs['add-recipe-modal'].hide()
         this.getRecipes()
@@ -401,7 +398,7 @@ option:hover {
 }
 
 .list-container {
-  max-height: 200px;
+  max-height: 76vh;
   overflow-y: auto;
 }
 

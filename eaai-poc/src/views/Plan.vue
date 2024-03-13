@@ -21,6 +21,15 @@ const { api_key, updateKey } = inject('api_key')
                             :options="planOptions"
                         ></b-form-select>
                     </b-form-group>
+
+                    <b-form-textarea
+                        id="textarea"
+                        v-model="infoText"
+                        placeholder="Write additional info..."
+                        rows="3"
+                        max-rows="6"
+                        class="mt-2"
+                    ></b-form-textarea>
                     
                     <div class="text-center">
                         <b-button @click="getPlan(api_key)" variant="primary" class="mt-2" pill>Save</b-button>
@@ -45,7 +54,7 @@ const { api_key, updateKey } = inject('api_key')
         <b-row class="mt-2">
             <b-overlay :show="loading" rounded="sm">
                 <b-card :title="formatedDate" :aria-hidden="loading ? 'true' : null">
-                    <div class="day-container">{{ dayText }}</div>
+                    <div class="day-container" v-html="dayText"></div>
                 </b-card>
             </b-overlay>
         </b-row>
@@ -66,6 +75,7 @@ export default {
             loadingPlan: false,
             value: null,
             selectedPlan: null,
+            infoText: '',
             planOptions: [
                 { value: null, text: 'Please select an option' },
                 { value: 'mediterranean', text: 'Mediterranean' },
@@ -77,6 +87,10 @@ export default {
             ],
             currentPlan: null
         }
+    },
+    created() {
+        let jsonPlan = "[\n  {\n    \"day1\": {\n      \"breakfast\": \"Scrambled eggs with tomatoes and avocado\",\n      \"lunch\": \"Grilled chicken salad with olive oil dressing\",\n      \"dinner\": \"Steak with grilled vegetables\"\n    }\n  },\n  {\n    \"day2\": {\n      \"breakfast\": \"Greek yogurt with a handful of almonds\",\n      \"lunch\": \"Shrimp stir-fry with broccoli and snow peas\",\n      \"dinner\": \"Baked salmon with lemon and asparagus\"\n    }\n  },\n  {\n    \"day3\": {\n      \"breakfast\": \"Protein smoothie with spinach, almond milk, protein powder\",\n      \"lunch\": \"Chicken Caesar salad without croutons\",\n      \"dinner\": \"Pork tenderloin with green beans\"\n    }\n  },\n  {\n    \"day4\": {\n      \"breakfast\": \"Omelette with spinach, mushrooms, and feta cheese\",\n      \"lunch\": \"Beef salad with cucumber, peppers, and romaine lettuce\",\n      \"dinner\": \"Baked cod with zucchini noodles\"\n    }\n  },\n  {\n    \"day5\": {\n      \"breakfast\": \"Avocado and turkey bacon wrap\",\n      \"lunch\": \"Chicken and vegetable stir-fry\",\n      \"dinner\": \"Stuffed bell peppers with ground turkey and cheese\"\n    }\n  },\n  {\n    \"day6\": {\n      \"breakfast\": \"Protein pancake with peanut butter spread\",\n      \"lunch\": \"Cobb Salad with hard-boiled eggs, chicken, and avocado\",\n      \"dinner\": \"Grilled shrimp skewers with a side salad\"\n    }\n  },\n  {\n    \"day7\": {\n      \"breakfast\": \"Chia seed pudding made with coconut milk\",\n      \"lunch\": \"Tuna salad wrapped in lettuce\",\n      \"dinner\": \"Grilled chicken with side of grilled squash and zucchini\"\n    }\n  }\n]"
+        this.currentPlan = JSON.parse(jsonPlan)
     },
     methods: {
         generatePlan() {
@@ -94,7 +108,7 @@ export default {
                     "content": [
                         {
                         "type": "text",
-                        "text": `Give a diet ${this.selectedPlan} plan. Provide it in a json object with the format [{"day": {"breakfast": "value", "lunch": "value", "dinner": "value"}}].`
+                        "text": `Give a diet ${this.selectedPlan} plan ${this.infoText}. Provide it in a json object with the format [{"day": {"breakfast": "value", "lunch": "value", "dinner": "value"}}].`
                         }
                     ]
                     }
@@ -114,6 +128,8 @@ export default {
               this.currentPlan = JSON.parse(response.choices[0].message.content)
               this.$refs['make-plan-modal'].hide()
               this.loadingPlan = false
+              this.selectedPlan = null
+              this.infoText = ''
             })
         }
     },
@@ -124,116 +140,23 @@ export default {
                 const date = new Date(year, month - 1, day)
                 const dayNumber = date.getDay()
 
+                let text = ''
                 if (this.currentPlan) {
                     let i = 0
                     for (var key in this.currentPlan) {
                         if (i === dayNumber) {
-                            var value = this.currentPlan[key]
-                            return value
+                            for (var key2 in this.currentPlan[key]) {
+
+                                text = `${text}<i>${key2}</i><hr>`
+                                for (var key3 in this.currentPlan[key][key2]) {
+                                    text = `${text}<h4>${key3}</h4><p>${JSON.stringify(this.currentPlan[key][key2][key3])}<p>`
+                                }
+                            }
                         }
                         i++
                     }
                 }
-
-                switch (dayNumber) {
-                    case 0:
-                        return `
-                            Breakfast (271 calories):
-                            Avocado-Egg Toast
-                            A.M. Snack (84 calories):
-                            1 cup blueberries
-                            Lunch (350 calories):
-                            Loaded Black Bean Nacho Soup
-                            P.M. Snack (62 calories):
-                            1 medium orange
-                            Dinner (457 calories):
-                            Seared Salmon with Green Peppercorn Sauce
-                            1 cup steamed green beans
-                        `
-                        break
-                    case 1:
-                        return `
-                            Breakfast:
-                            Greek yogurt with sliced strawberries and a sprinkle of granola
-                            A.M. Snack:
-                            Baby carrots with hummus
-                            Lunch:
-                            Quinoa salad with mixed vegetables and feta cheese
-                            P.M. Snack:
-                            Almonds
-                            Dinner:
-                            Baked chicken breast with roasted sweet potatoes and broccoli
-                        `
-                        break
-                    case 2:
-                        return `
-                            Breakfast:
-                            Oatmeal with sliced banana and a drizzle of honey
-                            A.M. Snack:
-                            Cottage cheese with pineapple chunks
-                            Lunch:
-                            Lentil soup with whole-grain bread
-                            P.M. Snack:
-                            Apple slices with peanut butter
-                            Dinner:
-                            Veggie stir-fry with tofu and brown rice
-                        `
-                        break
-                    case 3:
-                        return `
-                            Breakfast:
-                            Whole-grain toast with scrambled eggs and spinach
-                            A.M. Snack:
-                            Mixed berries (blueberries, raspberries, and blackberries)
-                            Lunch:
-                            Chickpea salad with cucumber, tomatoes, and lemon-tahini dressing
-                            P.M. Snack:
-                            Trail mix (nuts and dried fruit)
-                            Dinner:
-                            Grilled shrimp with quinoa and asparagus
-                        `
-                        break
-                    case 4:
-                        return `
-                            Breakfast:
-                            Smoothie (spinach, banana, almond milk, and protein powder)
-                            A.M. Snack:
-                            Edamame
-                            Lunch:
-                            Turkey and avocado wrap with whole-grain tortilla
-                            P.M. Snack:
-                            Cottage cheese with sliced peaches
-                            Dinner:
-                            Baked cod with roasted Brussels sprouts
-                        `
-                        break
-                    case 5:
-                        return `
-                            Breakfast:
-                            Vegetarian: Avocado toast with poached eggs.
-                            Vegan: Avocado toast with mashed chickpeas and cherry tomatoes.
-                            Lunch:
-                            Vegetarian: Grilled vegetable panini with pesto.
-                            Vegan: Hummus and roasted vegetable wrap.
-                            Dinner:
-                            Vegetarian: Spinach and feta stuffed bell peppers.
-                            Vegan: Stuffed bell peppers with quinoa and black beans.
-                        `
-                        break
-                    case 6:
-                        return `
-                            Breakfast:
-                            Vegetarian: Greek yogurt with sliced strawberries and a sprinkle of granola.
-                            Vegan: Coconut yogurt with mixed berries and a drizzle of maple syrup.
-                            Lunch:
-                            Vegetarian: Caprese salad with fresh mozzarella, tomatoes, and basil.
-                            Vegan: Chickpea salad with cucumber, red onion, and lemon-tahini dressing.
-                            Dinner:
-                            Vegetarian: Lentil curry with brown rice.
-                            Vegan: Vegetable stir-fry with tofu and quinoa.
-                        `
-                        break
-                }
+                return text
             }
             return 'Select date from calendar'
         },

@@ -197,7 +197,6 @@ export default {
       })
     },
     scanFile(api_key) {
-      console.log('scanning...', api_key)
       this.loading = true
 
       this.getBase64(this.file).then(base64 => {
