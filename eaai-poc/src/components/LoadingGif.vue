@@ -38,8 +38,8 @@ export default {
 
 <style scoped>
 .loading-image {
-  max-width: 365px;
-  max-height: 420px;
+  max-width: 256px;
+  max-height: 512px;
 }
 
 .loading-container {
