@@ -15,3 +15,10 @@ services:
     depends_on:
       - flask_app
     restart: always
+  proxy:
+    build: nginx/
+    ports:
+      - 80:80
+    depends_on:
+      - vue_app
+    restart: always
