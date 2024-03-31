@@ -126,7 +126,7 @@ export default {
       fetch(`${import.meta.env.VITE_API_URL}items`)
       .then((response) => response.json())
       .then((response) => {
-        this.items = response.items
+        this.items = response
       })
     },
     tableDateStyle(ymd) {

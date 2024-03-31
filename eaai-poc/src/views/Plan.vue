@@ -41,6 +41,27 @@ const { api_key, updateKey } = inject('api_key')
         </b-modal>
 
         <b-button @click="generatePlan(api_key)" variant="primary" pill>Generate plan</b-button>
+        
+        |
+
+        <!-- TODO make it a component -->
+        <div class="option-container">
+          <div class="option" 
+            :class="'list' === selectedMode ? 'active-option' : ''" 
+            @click="selectedMode = 'list'">
+            <b-icon icon="inboxes"/>
+          </div>
+          <div class="option" 
+            :class="'scan' === selectedMode ? 'active-option' : ''" 
+            @click="selectedMode = 'scan'">
+            <b-icon icon="camera"/>
+          </div>
+          <div class="option" 
+            :class="'recipe-list' === selectedMode ? 'active-option' : ''" 
+            @click="selectedMode = 'recipe-list'">
+            <b-icon icon="list"/>
+          </div>
+        </div>
 
         <b-row class="mt-2">
             <b-calendar 
@@ -58,6 +79,8 @@ const { api_key, updateKey } = inject('api_key')
                 </b-card>
             </b-overlay>
         </b-row>
+
+        
     </b-container>
 </template>
 
@@ -85,7 +108,8 @@ export default {
                 { value: 'intermittent_fasting', text: 'Intermittent Fasting'},
                 { value: 'zone', text: 'Stabilize Sugar Levels'}
             ],
-            currentPlan: null
+            currentPlan: null,
+            selectedMode: 'calendar'
         }
     },
     created() {
@@ -116,21 +140,33 @@ export default {
                 // "max_tokens": 300
             }
 
-            fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${api_key}`
-              },
-              body: JSON.stringify(jsonData)
-            }).then((response) => response.json())
-            .then((response) => {
-              this.currentPlan = JSON.parse(response.choices[0].message.content)
+            // fetch('https://api.openai.com/v1/chat/completions', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //     'Authorization': `Bearer ${api_key}`
+            //   },
+            //   body: JSON.stringify(jsonData)
+            // }).then((response) => response.json())
+            // .then((response) => {
+            //   this.currentPlan = JSON.parse(response.choices[0].message.content)
               this.$refs['make-plan-modal'].hide()
               this.loadingPlan = false
               this.selectedPlan = null
               this.infoText = ''
-            })
+
+              fetch(`${import.meta.env.VITE_API_URL}plans`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({'name': 'plan A', 'plan': this.currentPlan})
+                }).then((response) => response.json())
+                .then((response) => {
+                    console.log('plan saved', response)
+                })
+
+            // })
         }
     },
     computed: {
@@ -178,6 +214,20 @@ export default {
 </script>
 
 <style scoped>
+.option-container {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.5rem;
+}
+
+.option {
+  border: solid 1px #0d6efd;
+  color: #0d6efd;
+  margin-right: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+}
+
 .day-container {
   max-height: 350px;
   overflow-y: auto;

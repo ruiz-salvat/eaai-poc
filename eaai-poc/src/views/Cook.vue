@@ -47,6 +47,7 @@ const { api_key, updateKey } = inject('api_key')
 
     <div v-if="!loading">
       <div v-if="display === 'picker'">
+        <!-- TODO make it a component -->
         <div class="option-container">
           <div class="option" 
             :class="'list' === selectedMode ? 'active-option' : ''" 
@@ -194,7 +195,7 @@ export default {
       })
     },
     getRecipes() {
-      fetch(`${import.meta.env.VITE_API_URL}recipies`)
+      fetch(`${import.meta.env.VITE_API_URL}recipes`)
       .then((response) => response.json())
       .then((response) => {
         this.recipies = response
@@ -317,7 +318,7 @@ export default {
       this.$refs['add-recipe-modal'].show()
     },
     saveRecipe() {
-      fetch(`${import.meta.env.VITE_API_URL}recipies`, {
+      fetch(`${import.meta.env.VITE_API_URL}recipes`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

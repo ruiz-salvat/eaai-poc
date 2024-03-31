@@ -9,13 +9,15 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Home from './views/Home.vue'
 import Cook from './views/Cook.vue'
 import Plan from './views/Plan.vue'
+import User from './views/User.vue'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         { path: '/', name: 'home', component: Home },
         { path: '/cook', name: 'cook', component: Cook },
-        { path: '/plan', name: 'plan', component: Plan }
+        { path: '/plan', name: 'plan', component: Plan },
+        { path: '/user', name: 'user', component: User }
     ]
 })
 
