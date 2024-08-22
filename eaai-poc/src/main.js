@@ -6,6 +6,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { BootstrapVue, IconsPlugin, BVToastPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import Landing from './views/Home.vue'
+import Login from './views/Home.vue'
+import Register from './views/Home.vue'
 import Home from './views/Home.vue'
 import Cook from './views/Cook.vue'
 import Plan from './views/Plan.vue'
@@ -14,7 +17,10 @@ import User from './views/User.vue'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', name: 'home', component: Home },
+        { path: '/', name: 'landing', component: Landing },
+        { path: '/login', name: 'login', component: Login },
+        { path: '/register', name: 'register', component: Register },
+        { path: '/home', name: 'home', component: Home },
         { path: '/cook', name: 'cook', component: Cook },
         { path: '/plan', name: 'plan', component: Plan },
         { path: '/user', name: 'user', component: User }

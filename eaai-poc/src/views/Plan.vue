@@ -40,28 +40,24 @@ const { api_key, updateKey } = inject('api_key')
             </div>
         </b-modal>
 
+        <b-modal ref="plan-list-modal" title="Your diet plans" hide-footer>
+            <div class="d-block">
+                plan list
+            </div>
+        </b-modal>
+
+        <b-modal ref="shopping-list-modal" title="Shopping list" hide-footer>
+            <div class="d-block">
+                <b-table :items="shoppingListItems" />
+                <b-button @click="gennerateShoppingList(api_key)">generate</b-button>
+            </div>
+        </b-modal>
+
         <b-button @click="generatePlan(api_key)" variant="primary" pill>Generate plan</b-button>
         
-        |
+        <b-button @click="$refs['plan-list-modal'].show()" variant="outline-primary" class="mr-2" pill><b-icon icon="camera"/></b-button>
 
-        <!-- TODO make it a component -->
-        <div class="option-container">
-          <div class="option" 
-            :class="'list' === selectedMode ? 'active-option' : ''" 
-            @click="selectedMode = 'list'">
-            <b-icon icon="inboxes"/>
-          </div>
-          <div class="option" 
-            :class="'scan' === selectedMode ? 'active-option' : ''" 
-            @click="selectedMode = 'scan'">
-            <b-icon icon="camera"/>
-          </div>
-          <div class="option" 
-            :class="'recipe-list' === selectedMode ? 'active-option' : ''" 
-            @click="selectedMode = 'recipe-list'">
-            <b-icon icon="list"/>
-          </div>
-        </div>
+        <b-button @click="$refs['shopping-list-modal'].show()" variant="outline-primary" class="ml-2" pill><b-icon icon="camera"/></b-button>
 
         <b-row class="mt-2">
             <b-calendar 
@@ -80,7 +76,6 @@ const { api_key, updateKey } = inject('api_key')
             </b-overlay>
         </b-row>
 
-        
     </b-container>
 </template>
 
@@ -109,7 +104,7 @@ export default {
                 { value: 'zone', text: 'Stabilize Sugar Levels'}
             ],
             currentPlan: null,
-            selectedMode: 'calendar'
+            currentShoppingList: null // TODO nested object in currentPlan
         }
     },
     created() {
@@ -167,6 +162,87 @@ export default {
                 })
 
             // })
+        },
+        gennerateShoppingList(api_key) {
+
+            this.currentShoppingList = {
+                "shopping_list": {
+                "Eggs": 1,
+                "Tomatoes": 3,
+                "Avocado": 5,
+                "Grilled chicken": 2,
+                "Salad": 1,
+                "Olive oil": 1,
+                "Steak": 1,
+                "Vegetables": 7,
+                "Greek yogurt": 1,
+                "Handful of almonds": 1,
+                "Shrimp": 2,
+                "Broccoli": 1,
+                "Snow Peas": 1,
+                "Baked salmon": 1,
+                "Lemon": 1,
+                "Asparagus": 1,
+                "Spinach": 3,
+                "Almond milk": 1,
+                "Protein powder": 1,
+                "Chicken Caesar salad": 1,
+                "Pork tenderloin": 1,
+                "Green beans": 1,
+                "Mushrooms": 1,
+                "Feta cheese": 1,
+                "Beef": 1,
+                "Cucumber": 1,
+                "Peppers": 1,
+                "Romaine lettuce": 1,
+                "Baked cod": 1,
+                "Zucchini noodles": 1,
+                "Turkey bacon": 1,
+                "Chicken and vegetable stir-fry": 1,
+                "Bell peppers": 1,
+                "Ground turkey": 1,
+                "Cheese": 1,
+                "Protein pancake": 1,
+                "Peanut butter": 1,
+                "Cobb Salad": 1,
+                "Hard-boiled eggs": 1,
+                "Shrimp skewers": 1,
+                "Chia seed": 1,
+                "Coconut milk": 1,
+                "Tuna salad": 1,
+                "Lettuce": 2,
+                "Grilled squash":1 
+                }
+            }
+
+
+            let jsonData = {
+                "model": "gpt-4",
+                "messages": [
+                    {
+                    "role": "user",
+                    "content": [
+                        {
+                        "type": "text",
+                        "text": `Make a shopping list for the diet plan: ${JSON.stringify(this.currentPlan)}. Provide it in a json object.`
+                        }
+                    ]
+                    }
+                ],
+                // "max_tokens": 300
+            }
+
+            // fetch('https://api.openai.com/v1/chat/completions', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //     'Authorization': `Bearer ${api_key}`
+            //   },
+            //   body: JSON.stringify(jsonData)
+            // }).then((response) => response.json())
+            // .then((response) => {
+            //   console.log('response', response)
+            // })
         }
     },
     computed: {
@@ -208,6 +284,17 @@ export default {
             const month = monthNames[date.getMonth()]
             const year = date.getFullYear()
             return `${day} ${month} ${year}`
+        },
+        shoppingListItems() {
+            let items = []
+            if (this.currentShoppingList) {
+                for (var key in this.currentShoppingList) {
+                    for (var key2 in this.currentShoppingList[key]) {
+                        items.push({name: key2, amount: this.currentShoppingList[key][key2]})
+                    }
+                }
+            }
+            return items
         }
     }
 }
