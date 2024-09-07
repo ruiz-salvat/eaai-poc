@@ -1,24 +1,50 @@
 version: "3.8"
 services:
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: postgres_groceries
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./mongodb_data:/data/db
+
   flask_app:
     build: backend/
     volumes:
       - ./backend:/backend
     ports:
       - '5000:5000'
+    environment: # development
+      - AUTHLIB_INSECURE_TRANSPORT=1
+
   vue_app:
     build: eaai-poc/
-    # volumes:
-    #   - ./eaai-poc:/eaai-poc
+    volumes:
+      - ./eaai-poc:/eaai-poc
     ports:
       - '5173:5173'
     depends_on:
       - flask_app
-    restart: always
-  proxy:
-    build: nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - vue_app
-    restart: always
+    # restart: always
+
+  # proxy:
+  #   build: nginx/
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     - vue_app
+  #   restart: always

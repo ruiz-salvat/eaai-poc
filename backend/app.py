@@ -7,17 +7,17 @@ from components.controllers.items import items_controller
 from components.controllers.recipes import recipes_controller
 from components.controllers.plans import plans_controller
 from components.controllers.users import users_controller
-from components.utils import CurrentServer
+from components.oauth import CurrentServer
 
 
 init_db()
 app = Flask(__name__)
 CurrentServer.init(app)
 app.register_blueprint(authorization_controller)
+app.register_blueprint(users_controller)
 app.register_blueprint(items_controller)
 app.register_blueprint(recipes_controller)
 app.register_blueprint(plans_controller)
-app.register_blueprint(users_controller)
 app.secret_key = 'secret'
 api = Api(app)
 

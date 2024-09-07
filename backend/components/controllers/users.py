@@ -1,6 +1,6 @@
 from flask import request, Blueprint, jsonify
 from authlib.integrations.flask_oauth2 import current_token
-from components.utils import require_oauth
+from components.oauth import require_oauth
 
 
 users_controller = Blueprint('UsersController', __name__, template_folder='controllers')

@@ -1,5 +1,22 @@
 # eaai-poc
 
+## TODO
+
+* Frontend
+    * vuetify
+    * oauth client
+
+* Backend
+    * DB Migration
+    * Databases
+        * mysql
+        * mongodb
+    * oauth proteck endpoints
+        * test
+
+* Kubernetes
+* Mobile
+
 ## Some ideas...
 
 * Timer
@@ -14,11 +31,28 @@
 
 ## Links
 
-https://docs.docker.com/engine/install/ubuntu/
+Alembic:
+https://alembic.sqlalchemy.org/en/latest/autogenerate.html
 
-https://www.freecodecamp.org/news/how-to-dockerize-a-flask-app/
+Authlib:
+https://docs.authlib.org/en/latest/flask/2/authorization-server.html
 
-https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html?redirect=true
+Vuetify:
+https://vuetifyjs.com/en/components/buttons/
+
+# Commands
+
+Alembic:
+
+alembic revision --autogenerate -m "migration name"
+
+alembic upgrade head
+
+Docker:
+
+sudo docker compose up
+
+sudo docker compose down
 
 ## Server setup
 

@@ -1,26 +1,16 @@
+import pymongo
 import json
 
 
 class JSONItemService():
 
     def __init__(self):
-        f = open('data.json', 'r')
-        self.data = json.load(f)
-        f.close()
-
-    def __get_next_id(self, key):
-        f = open('data.json', 'r')
-        data = json.load(f)
-        f.close()
-        id_list = list(map(lambda x: x['id'], data[key]))
-        try:
-            max_id = max(id_list)
-            return max_id + 1
-        except:
-            return 0
+        self.client = pymongo.MongoClient('mongodb://root:pass@mongodb:27017/')
+        self.db = self.client['mongodb_groceries']
 
     def get_all_items(self, key):
-        return self.data[key]
+        collection = self.db[key]
+        return list(collection.find({}, {'_id': 0}))
 
     def get_item(self, key, id):
         item_list = list(filter(lambda x: x['id'] == int(id), self.data[key]))
@@ -31,12 +21,9 @@ class JSONItemService():
         return item
 
     def create_item(self, key, new_item):
-        next_id = self.__get_next_id(key)
-        new_item['id'] = next_id
-        self.data[key].append(new_item)
-
-        with open('data.json', 'w') as f:
-            json.dump(self.data, f)
+        collection = self.db[key]
+        collection.insert_one(new_item)
+        del new_item['_id']
         return new_item
 
     def update_item(self, key, item):
@@ -46,7 +33,7 @@ class JSONItemService():
         self.data[key] = list(filter(lambda x: x['id'] != int(id), self.data[key]))
         with open('data.json', 'w') as f:
             json.dump(self.data, f)
-        return {'msg': 'success'}
+        return True
 
 
 class AIService():

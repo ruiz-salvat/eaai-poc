@@ -1,97 +1,192 @@
 <template>
     <div>
-        hola
-            <!-- <input type="text" name="username" placeholder="username">
-            <button @click="submit()">Login / Signup</button> -->
-            <hr>
-            <form :action="homeUrl" method="post">
-                <input type="text" name="username" placeholder="username">
-                <button type="submit">Login / Signup</button>
-            </form>
 
-            <hr>
+        <h1>Login</h1>
 
-            <form :action="createClientUrl" method="post">
+        <div>
             <label>
-                <span>Client Name</span>
-                <input type="text" name="client_name">
+                <span>Username</span>
+                <input type="text" name="username" v-model="username">
             </label>
+            <button @click="getUserId()">Submit</button>
+        </div>
+
+        <div>User id: {{ userId }}</div>
+
+        <hr>
+
+        <div>
             <label>
-                <span>Client URI</span>
-                <input type="url" name="client_uri">
+                <span>Create Client</span>
+                <!-- <input type="text" name="username"> -->
             </label>
+            <div>
+                <button @click="createClient()">Submit</button>
+            </div>
+
+            <div>client id: {{ this.clientId }}</div>
+            <div>client secret: {{ this.clientSecret }}</div>
+        </div>
+
+        <hr>
+
+        <div>
             <label>
-                <span>Allowed Scope</span>
-                <input type="text" name="scope">
+                <span>Authorize</span>
+                <!-- <input type="text" name="username"> -->
             </label>
+            <div>
+                <button @click="authorize()">Submit</button>
+            </div>
+
+            <div>authorization code: {{ this.authorizationCode}}</div>
+        </div>
+
+        <hr>
+
+        <div>
             <label>
-                <span>Redirect URIs</span>
-                <textarea name="redirect_uri" cols="30" rows="10"></textarea>
+                <span>Issue token</span>
+                <!-- <input type="text" name="username"> -->
             </label>
-            <label>
-                <span>Allowed Grant Types</span>
-                <textarea name="grant_type" cols="30" rows="10"></textarea>
-            </label>
-            <label>
-                <span>Allowed Response Types</span>
-                <textarea name="response_type" cols="30" rows="10"></textarea>
-            </label>
-            <label>
-                <span>Token Endpoint Auth Method</span>
-                <select name="token_endpoint_auth_method">
-                <option value="client_secret_basic">client_secret_basic</option>
-                <option value="client_secret_post">client_secret_post</option>
-                <option value="none">none</option>
-                </select>
-            </label>
-            <button>Submit</button>
-            </form>
+            <div>
+                <button @click="issueToken()">Submit</button>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script>
 export default {
+    data() {
+        return {
+            userId: null,
+            username: null,
+            clientId: null,
+            clientSecret: null,
+            authorizationCode: null
+        }
+    },
     created() {
-        fetch(`${import.meta.env.VITE_API_URL}user`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                // 'Authorization': `Bearer ${api_key}`
-              },
-            //   body: JSON.stringify(jsonData)
-            }).then((response) => response.json())
-            .then((response) => {
-                console.log('response', response)
-            })
+        // fetch(`${import.meta.env.VITE_API_URL}user`, {
+        //       method: 'GET',
+        //       headers: {
+        //         'Content-Type': 'application/json',
+        //         // 'Authorization': `Bearer ${api_key}`
+        //       },
+        //     //   body: JSON.stringify(jsonData)
+        //     }).then((response) => response.json())
+        //     .then((response) => {
+        //         console.log('response', response)
+        //     })
     },
     methods: {
         objectToFormData(obj) {
-        const formData = new FormData();
-        for (const [key, value] of Object.entries(obj)) {
-            formData.append(key, value);
-        }
-        return formData;
+            const formData = new FormData()
+            for (const [key, value] of Object.entries(obj)) {
+                formData.append(key, value)
+            }
+            return formData
         },
-        submit() {
-            let data = {username: 'ekiki'}
+        getUserId() {
+            let data = {username: this.username}
             
             const formData = this.objectToFormData(data)
+
+            console.log('form data', formData)
 
             fetch(`${import.meta.env.VITE_API_URL}home`, {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
               },
-              body: formData
+              body: new URLSearchParams(formData).toString()
             }).then((response) => response.json())
             .then((response) => {
-                console.log('response', response)
+                this.userId = response.user_id
+            })
+        },
+        createClient() {
+            let data = { // TODO: move some values to backend
+                client_name: this.username,
+                client_uri: 'http://127.0.0.1:5173/plan',
+                grant_types: 'authorization_code',
+                redirect_uris: 'http://127.0.0.1:5173/plan',
+                response_types: 'code',
+                scope: 'profile',
+                token_endpoint_auth_method: 'client_secret_basic'
+            }
+            
+            const formData = this.objectToFormData(data)
+
+            console.log('form data', formData)
+
+            fetch(`${import.meta.env.VITE_API_URL}create-client`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Id': `${this.userId}`
+              },
+              body: new URLSearchParams(formData).toString()
+            }).then((response) => response.json())
+            .then((response) => {
+                this.clientId = response.client_id
+                this.clientSecret = response.client_secret
+            })
+        },
+        authorize() {
+            let data = {
+                confirm: true,
+                username: this.username
+            }
+            
+            const formData = this.objectToFormData(data)
+
+            fetch(`${import.meta.env.VITE_API_URL}authorize?response_type=code&client_id=${this.clientId}&scope=profile`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Id': `${this.userId}`
+              },
+              body: new URLSearchParams(formData).toString()
+            }).then((response) => response.json()).then((data) => {
+                this.authorizationCode = data.authorization_code
+            })
+        },
+        issueToken() {
+            let data = {
+                code: this.authorizationCode,
+                scope: 'profile',
+                grant_type: 'authorization_code'
+            }
+            
+            const formData = this.objectToFormData(data)
+
+            const encodedCredentials = btoa(`${this.clientId}:${this.clientSecret}`)
+
+            const authorizationHeader = `Basic ${encodedCredentials}`
+
+            fetch(`${import.meta.env.VITE_API_URL}issue-token`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Id': `${this.userId}`,
+                'Authorization': authorizationHeader
+              },
+              body: new URLSearchParams(formData).toString()
+            }).then((response) => {
+                console.log('status', response.status)
+                console.log('headers', response.headers)
+                return response.json()
+            }).then((data) => {
+                console.log('token successfully created', data)
             })
         }
     },
     computed: {
         homeUrl() {
-            return `${import.meta.env.VITE_API_URL}home`
+            return `${import.meta.env.VITE_API_URL}home?next=http://localhost:5173/plan`
         },
         createClientUrl() {
             return `${import.meta.env.VITE_API_URL}create_client`

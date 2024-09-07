@@ -3,12 +3,20 @@ import Vue from 'vue'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+
+// TODO: remove
 import { BootstrapVue, IconsPlugin, BVToastPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+
 import Landing from './views/Home.vue'
-import Login from './views/Home.vue'
-import Register from './views/Home.vue'
+import Login from './views/Login.vue'
+import Register from './views/Register.vue'
 import Home from './views/Home.vue'
 import Cook from './views/Cook.vue'
 import Plan from './views/Plan.vue'
@@ -27,9 +35,15 @@ const router = createRouter({
     ]
 })
 
+const vuetify = createVuetify({
+    components,
+    directives
+})
+
 const app = createApp(App)
 
 app.use(router)
+app.use(vuetify)
 Vue.use(BVToastPlugin)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
