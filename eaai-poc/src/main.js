@@ -1,20 +1,11 @@
 import './assets/main.css'
-import Vue from 'vue'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-
-// TODO: remove
-import { BootstrapVue, IconsPlugin, BVToastPlugin } from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-
-import Landing from './views/Home.vue'
+import VueCookies from 'vue-cookies'
+import './scss/styles.scss'
+import * as bootstrap from 'bootstrap'
+import Landing from './views/Landing.vue'
 import Login from './views/Login.vue'
 import Register from './views/Register.vue'
 import Home from './views/Home.vue'
@@ -35,17 +26,9 @@ const router = createRouter({
     ]
 })
 
-const vuetify = createVuetify({
-    components,
-    directives
-})
-
 const app = createApp(App)
 
 app.use(router)
-app.use(vuetify)
-Vue.use(BVToastPlugin)
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
+app.use(VueCookies)
 
 app.mount('#app')

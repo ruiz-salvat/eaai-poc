@@ -1,43 +1,56 @@
 <template>
-    <b-modal ref="add-item-modal" title="Add a new item to the calendar" hide-footer>
-      <div class="d-block">
-        <b-form @submit="onSubmit">
-          <b-form-group
-            label="Name:"
-            label-for="input-1">
-            <b-form-input
-              id="input-1"
-              v-model="newItem.name"
-              type="text"
-              placeholder="Milk"
-              required
-            ></b-form-input>
-          </b-form-group>
+    <ModalBase :showModal="showModal" modalTitle="New item">
+      <template v-slot:body>
+        <div class="mb-3">
+          <label for="nameInput" class="form-label">Name</label>
+          <input v-model="newItem.name" type="text" class="form-control" id="nameInput">
+        </div>
 
-          <b-form-group
-            label="Expiry date:"
-            label-for="input-2"
-            class="mt-2">
-            <b-form-datepicker 
-                id="input-2"
-                v-model="newItem.date"
-                required />
-          </b-form-group>
-          
-          <div class="text-center">
-            <b-button type="submit" variant="primary" class="mt-2" pill>Add</b-button>
-          </div>
-        </b-form>
-      </div>
-    </b-modal>
+        <div class="mb-3">
+          <label for="dateInput" class="form-label">Date</label>
+          <input v-model="newItem.date" type="text" class="form-control" id="dateInput" aria-describedby="dateHelp">
+          <div id="datelHelp" class="form-text">Enter the expiry date of the product.</div>
+        </div>
+      </template>
+
+      <template v-slot:footer>
+        <button @click="addNewItem()" type="submit" class="btn btn-primary">Add</button>
+      </template>
+    </ModalBase>
 </template>
 
 <script>
-export default {
+import ModalBase from './base_components/Modal.vue'
 
+export default {
+  components: {ModalBase},
+  props: {
+    showModal: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      newItem: {
+        name: '',
+        date: ''
+      }
+    }
+  },
+  methods: {
+    addNewItem() {
+      fetch(`${import.meta.env.VITE_API_URL}items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$cookies.get('access-token')}`
+        },
+        body: JSON.stringify(this.newItem)
+      }).then((response) => response.json()).then((data) => {
+        console.log('data..', data)
+      })
+    }
+  }
 }
 </script>
-
-<style scoped>
-
-</style>

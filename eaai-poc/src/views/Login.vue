@@ -1,14 +1,17 @@
 <template>
     <div>
+        <router-link to="/">Back</router-link>
 
         <h1>Login</h1>
 
         <div>
-            <label>
-                <span>Username</span>
-                <input type="text" name="username" v-model="username">
-            </label>
-            <button @click="getUserId()">Submit</button>
+            <div>Get User ID</div>
+            <div>
+                <span style="margin-right: 5px">Username:</span>
+                <input type="text" style="border: 1px solid blue" v-model="username">
+                
+            </div>
+            <button class="btn btn-primary" @click="getUserId" elevated>Submit</button>
         </div>
 
         <div>User id: {{ userId }}</div>
@@ -16,43 +19,38 @@
         <hr>
 
         <div>
-            <label>
-                <span>Create Client</span>
-                <!-- <input type="text" name="username"> -->
-            </label>
+            <div>Create Client</div>
             <div>
-                <button @click="createClient()">Submit</button>
+                <button class="btn btn-primary" @click="createClient">Submit</button>
             </div>
 
-            <div>client id: {{ this.clientId }}</div>
-            <div>client secret: {{ this.clientSecret }}</div>
+            <div>Client id: {{ this.clientId }}</div>
+            <div>Client secret: {{ this.clientSecret }}</div>
         </div>
 
         <hr>
 
         <div>
-            <label>
-                <span>Authorize</span>
-                <!-- <input type="text" name="username"> -->
-            </label>
+            <div>Authorize</div>
             <div>
-                <button @click="authorize()">Submit</button>
+                <button class="btn btn-primary" @click="authorize">Submit</button>
             </div>
 
-            <div>authorization code: {{ this.authorizationCode}}</div>
+            <div>Authorization code: {{ this.authorizationCode}}</div>
         </div>
 
         <hr>
 
         <div>
-            <label>
-                <span>Issue token</span>
-                <!-- <input type="text" name="username"> -->
-            </label>
+            <div>Issue token</div>
             <div>
-                <button @click="issueToken()">Submit</button>
+                <button class="btn btn-primary" @click="issueToken">Submit</button>
             </div>
+
+            <div>Access token: {{ this.accessToken }}</div>
         </div>
+
+        <router-link to="/home">Home</router-link>
 
     </div>
 </template>
@@ -65,21 +63,9 @@ export default {
             username: null,
             clientId: null,
             clientSecret: null,
-            authorizationCode: null
+            authorizationCode: null,
+            accessToken: null
         }
-    },
-    created() {
-        // fetch(`${import.meta.env.VITE_API_URL}user`, {
-        //       method: 'GET',
-        //       headers: {
-        //         'Content-Type': 'application/json',
-        //         // 'Authorization': `Bearer ${api_key}`
-        //       },
-        //     //   body: JSON.stringify(jsonData)
-        //     }).then((response) => response.json())
-        //     .then((response) => {
-        //         console.log('response', response)
-        //     })
     },
     methods: {
         objectToFormData(obj) {
@@ -90,6 +76,7 @@ export default {
             return formData
         },
         getUserId() {
+            console.log('gets here!')
             let data = {username: this.username}
             
             const formData = this.objectToFormData(data)
@@ -181,16 +168,13 @@ export default {
                 return response.json()
             }).then((data) => {
                 console.log('token successfully created', data)
+                this.accessToken = data.access_token
+                this.setTokenCookie()
             })
-        }
-    },
-    computed: {
-        homeUrl() {
-            return `${import.meta.env.VITE_API_URL}home?next=http://localhost:5173/plan`
         },
-        createClientUrl() {
-            return `${import.meta.env.VITE_API_URL}create_client`
+        setTokenCookie() {
+            this.$cookies.set('access-token', this.accessToken)
         }
-    },
+    }
 }
 </script>

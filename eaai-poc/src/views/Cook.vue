@@ -7,7 +7,8 @@ const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
-  <b-container class="mt-2 mb-2">
+  <div>todo</div>
+  <!-- <b-container class="mt-2 mb-2">
     {{ updateKey() }}
 
     <b-modal ref="add-recipe-modal" title="Add a new recipe" hide-footer>
@@ -47,7 +48,7 @@ const { api_key, updateKey } = inject('api_key')
 
     <div v-if="!loading">
       <div v-if="display === 'picker'">
-        <!-- TODO make it a component -->
+        
         <div class="option-container">
           <div class="option" 
             :class="'list' === selectedMode ? 'active-option' : ''" 
@@ -151,7 +152,7 @@ const { api_key, updateKey } = inject('api_key')
     </div>
     
     <LoadingGif :loading="loading"></LoadingGif>
-  </b-container>
+  </b-container> -->
 </template>
 
 <script>

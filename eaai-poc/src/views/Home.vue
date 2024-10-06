@@ -1,3 +1,93 @@
+<template>
+  <div>
+
+    <AddItemModal :showModal="showModal" @close="onItemModalClose"></AddItemModal>
+
+    <div class="btn-group" role="group" style="margin-top: 1rem; margin-bottom: 1rem;">
+      <button type="button" class="btn btn-primary icon-button" @click="scanItem">
+        <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+          <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+          <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+        </svg>
+        <span style="margin-left: 0.3rem;">Scan</span>
+      </button>
+      <button type="button" class="btn btn-outline-primary" @click="openItemModal">Add new item</button>
+    </div>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in items" :key="item.name">
+          <td>{{ item.name }}</td>
+          <td>{{ item.date }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</template>
+
+<script>
+import AddItemModal from '../components/AddItemModal.vue'
+
+export default {
+  components: {AddItemModal},
+  data () {
+    return {
+      items: [],
+      rows: [],
+      columns: [
+        { name: 'name', label: 'Name', field: 'name', sortable: true },
+        { name: 'date', label: 'Date', field: 'date', sortable: true }
+      ],
+      showModal: false
+    }
+  },
+  created() {
+    this.getItems()
+  },
+  methods: {
+    getItems() {
+      fetch(`${import.meta.env.VITE_API_URL}items`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${this.$cookies.get('access-token')}`
+              }
+        }).then((response) => response.json())
+        .then((data) => {
+          this.items = data
+          this.rows = data
+          console.log('rows', this.rows)
+        })
+    },
+    openItemModal() {
+      this.showModal = true
+    },
+    onItemModalClose() {
+      console.log('gets here')
+      this.showModal = false
+    },
+    scanItem() {
+      alert('not implemented')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.icon-button {
+  display: flex;
+  align-items: center;
+}
+</style>
+
+
+<!--
 <script setup>
 import ConfirmationModal from '../components/ConfirmationModal.vue'
 import LoadingGif from '../components/LoadingGif.vue'
@@ -24,7 +114,7 @@ const { api_key, updateKey } = inject('api_key')
     <v-data-table-server :headers="headers" :items="items"></v-data-table-server>
      {{ this.items }}
 
-    <!-- <b-row class="mt-2">
+    <b-row class="mt-2">
       <b-table 
         :items="items"
         :fields="fields"
@@ -41,7 +131,7 @@ const { api_key, updateKey } = inject('api_key')
             variant="danger" />
         </template>
       </b-table>
-    </b-row> -->
+    </b-row>
   </div>
 </template>
 
@@ -274,3 +364,4 @@ export default {
   font-weight: bold;
 }
 </style>
+-->

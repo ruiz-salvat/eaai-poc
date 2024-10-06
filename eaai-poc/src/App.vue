@@ -20,10 +20,27 @@ provide('api_key', {
 
 <template>
   <div>
-    <MenuBar />
+    <MenuBar v-if="!loading && privateRoutes.includes($route.name)"/>
     
-    <div>
+    <div class="container">
       <router-view></router-view>
     </div>
-  </div>  
+  </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      loading: true,
+      privateRoutes: ['home', 'cook', 'plan', 'user']
+    }
+  },
+  watch: {
+    '$route.name' (newName) {
+      if (this.privateRoutes.includes(newName) && !this.$cookies.get('access-token')) this.$router.push('/')
+      this.loading = false
+    }
+  }
+}
+</script>

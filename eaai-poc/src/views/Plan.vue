@@ -6,7 +6,8 @@ const { api_key, updateKey } = inject('api_key')
 </script>
 
 <template>
-    <b-container class="mt-2 mb-2">
+    <div>todo</div>
+    <!-- <b-container class="mt-2 mb-2">
         {{ updateKey() }}
 
         <b-modal ref="make-plan-modal" title="Make a diet plan" hide-footer>
@@ -76,7 +77,7 @@ const { api_key, updateKey } = inject('api_key')
             </b-overlay>
         </b-row>
 
-    </b-container>
+    </b-container> -->
 </template>
 
 <script>
